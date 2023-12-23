@@ -1,17 +1,34 @@
 services:
-  mariadb:
-    image: 'mariadb:latest'
+  spring-app:
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
     environment:
-      - 'MARIADB_DATABASE=mydatabase'
-      - 'MARIADB_PASSWORD=secret'
-      - 'MARIADB_ROOT_PASSWORD=verysecret'
-      - 'MARIADB_USER=myuser'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/delivery
+      SPRING_DATASOURCE_USERNAME: mariadb
+      SPRING_DATASOURCE_PASSWORD: your_password
+    volumes:
+      - myapp-volume:/opt/app/data
+
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MARIADB_DATABASE: instalite
+      MARIADB_PASSWORD: secret
+      MARIADB_ROOT_PASSWORD: verysecret
+      MARIADB_USER: myuser
     ports:
       - '3306'
+
   # Vue Frontend
-  angular-app:
+  vue-app:
     build:
       context: ./frontend
     container_name: vue-app
     ports:
       - "4200:4200"
+
+volumes:
+  myapp-volume:
