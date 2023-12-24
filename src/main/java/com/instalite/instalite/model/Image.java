@@ -30,4 +30,7 @@ public class Image {
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
+
+    @Column(nullable = false)
+    private String imageUrl;
 }

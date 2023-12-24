@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ImageRepository  extends JpaRepository<Image, Long> {
     Page<Image> findAll(Pageable pageable);
-    Page<Image> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<Image> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }
