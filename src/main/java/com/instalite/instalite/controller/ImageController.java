@@ -18,7 +18,7 @@ public class ImageController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Image>> getAllLivreurs(@RequestParam(required = false) String name, Pageable pageable) {
+    public ResponseEntity<Page<Image>> getAllImages(@RequestParam(required = false) String name, Pageable pageable) {
         if (name != null) {
             return ResponseEntity.ok(imageService.findByName(name, pageable));
         }
