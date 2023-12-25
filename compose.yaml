@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   spring-app:
     build: ./
@@ -6,9 +8,9 @@ services:
     depends_on:
       - mariadb
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/delivery
-      SPRING_DATASOURCE_USERNAME: mariadb
-      SPRING_DATASOURCE_PASSWORD: your_password
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/instalite
+      SPRING_DATASOURCE_USERNAME: gil
+      SPRING_DATASOURCE_PASSWORD: m2gilunivrouen
     volumes:
       - myapp-volume:/opt/app/data
 
@@ -16,19 +18,14 @@ services:
     image: mariadb:latest
     environment:
       MARIADB_DATABASE: instalite
+      MARIADB_USER: gil
       MARIADB_PASSWORD: m2gilunivrouen
       MARIADB_ROOT_PASSWORD: verysecret
-      MARIADB_USER: gil
     ports:
-      - '3306'
-
-  # Vue Frontend
-  vue-app:
-    build:
-      context: ./frontend
-    container_name: vue-app
-    ports:
-      - "4200:4200"
+      - '3306:3306'
+    volumes:
+      - mariadb-volume:/var/lib/mysql
 
 volumes:
   myapp-volume:
+  mariadb-volume:

@@ -32,5 +32,9 @@ public class Image {
     private LocalDateTime timestamp;
 
     @Column(nullable = false)
-    private String imageUrl;
+    private String filename;
+
+    public String getImageUrl() {
+        return "/api/v1/images/file/" + this.filename;
+    }
 }
