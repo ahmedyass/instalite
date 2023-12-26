@@ -15,6 +15,7 @@
 
 ## Privileged User
 
+- `GET /api/private/images` : Retrieve all private images.
 - `POST /api/private/images/{imageId}/comments`: Add a comment to an image.
 - `PUT /api/private/comments/{commentId}`: Edit a comment.
 - `DELETE /api/private/comments/{commentId}`: Delete a comment.
