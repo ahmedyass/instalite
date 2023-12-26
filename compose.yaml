@@ -1,13 +1,14 @@
 services:
   mariadb:
     image: 'mariadb:latest'
+    container_name: mariadb-instalite
     environment:
       - 'MARIADB_DATABASE=mydatabase'
       - 'MARIADB_PASSWORD=secret'
       - 'MARIADB_ROOT_PASSWORD=verysecret'
       - 'MARIADB_USER=myuser'
     ports:
-      - '3306'
+      - "3306:3306"
   # Vue Frontend
   angular-app:
     build:
