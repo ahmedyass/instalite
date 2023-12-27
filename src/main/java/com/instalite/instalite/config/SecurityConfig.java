@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/user/register").permitAll()
                 .requestMatchers("/api/v1/user/login").permitAll()
+                .requestMatchers("/api/v1/user/logout").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/private/**").hasAnyRole("PRIVILEGED_USER", "ADMINISTRATOR")
                 .anyRequest().hasRole("ADMINISTRATOR"))
@@ -34,7 +35,14 @@ public class SecurityConfig {
             .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .logout(logout -> logout
+                .logoutUrl("/api/v1/logout")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setStatus(200);
+                })
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID"));
 
         return http.build();
     }
