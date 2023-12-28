@@ -10,9 +10,20 @@ services:
     ports:
       - "3306:3306"
   # Vue Frontend
-  angular-app:
+  vue-app:
     build:
       context: ./frontend
-    container_name: vue-app
+      dockerfile: Dockerfile
+    container_name: vue-instalite
     ports:
-      - "4200:4200"
+      - "4200:8080"
+  # Spring Boot Backend
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-instalite
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
