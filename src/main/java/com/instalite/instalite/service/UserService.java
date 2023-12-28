@@ -4,6 +4,7 @@ import com.instalite.instalite.dto.LoginDto;
 import com.instalite.instalite.dto.RegisterDto;
 import com.instalite.instalite.dto.RegisterResponseDto;
 import com.instalite.instalite.exception.UserAlreadyExistsException;
+import com.instalite.instalite.exception.UserNotFoundException;
 import com.instalite.instalite.model.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,7 +48,7 @@ public class UserService {
             )
         );
         var user = userRepository.findByUsername(request.getUsername())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(UserNotFoundException::new);
         var jwtToken = jwtService.generateToken(user);
         return RegisterResponseDto.builder()
             .jwt(jwtToken)
