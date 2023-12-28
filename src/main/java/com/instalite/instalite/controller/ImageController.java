@@ -2,71 +2,96 @@ package com.instalite.instalite.controller;
 
 import com.instalite.instalite.model.Image;
 import com.instalite.instalite.service.ImageService;
-
-import jakarta.servlet.ServletContext;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Set;
+import java.net.URI;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/images")
+@RequestMapping("/api/v1")
 public class ImageController {
+
     private final ImageService imageService;
-    private final ServletContext servletContext;
 
-    public ImageController(ImageService imageService, ServletContext servletContext) {
+    @Autowired
+    public ImageController(ImageService imageService) {
         this.imageService = imageService;
-        this.servletContext = servletContext;
     }
 
-    private String determineContentType(String filename) {
-        String mimeType = servletContext.getMimeType(filename);
-        return mimeType != null ? mimeType : "application/octet-stream";
+    @GetMapping("/public/images")
+    public ResponseEntity<?> listAllPublicImages(Pageable pageable) {
+        return ResponseEntity.ok(imageService.getAllPublicImages(pageable));
     }
 
-    @GetMapping
-    public ResponseEntity<Page<Image>> getAllImages(@RequestParam(required = false) String title, Pageable pageable) {
-        if (title != null) {
-            return ResponseEntity.ok(imageService.findByTitle(title, pageable));
-        }
-        return ResponseEntity.ok(imageService.findAll(pageable));
-    }
-    @GetMapping("/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-        Resource image = imageService.loadAsResource(filename);
-        String contentType = determineContentType(filename);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .body(image);
+    @GetMapping("/private/images")
+    public ResponseEntity<?> listAllPrivateImages(Pageable pageable) {
+        return ResponseEntity.ok(imageService.getAllPrivateImages(pageable));
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
-        Set<String> allowedMediaTypes = Set.of(
-                MediaType.IMAGE_JPEG_VALUE,
-                MediaType.IMAGE_PNG_VALUE,
-                MediaType.IMAGE_GIF_VALUE
-        );
-
+    @GetMapping("/public/images/{id}")
+    public ResponseEntity<?> downloadPublicImage(@PathVariable Long id) {
         try {
-            if (!allowedMediaTypes.contains(file.getContentType())) {
-                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                        .body("Unsupported media type: " + file.getContentType());
-            }
-
-            imageService.store(file);
-            return ResponseEntity.ok("File uploaded successfully: " + file.getOriginalFilename());
+            URI imageUri = imageService.getImageUri(id, true);
+            return ResponseEntity.ok().body(Map.of("url", imageUri.toString()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to upload file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
         }
     }
 
+    @GetMapping("/private/images/{id}")
+    public ResponseEntity<?> downloadPrivateImage(@PathVariable Long id) {
+        try {
+            URI imageUri = imageService.getImageUri(id, false);
+            return ResponseEntity.ok().body(Map.of("url", imageUri.toString()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/images")
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file,
+                                         @RequestParam("title") String title,
+                                         @RequestParam("description") String description,
+                                         @RequestParam("isPublic") Boolean isPublic) {
+        try {
+            Image image = imageService.uploadImage(file, title, description, isPublic);
+            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/images/")
+                    .path(image.getId().toString())
+                    .toUriString();
+
+            return ResponseEntity.created(URI.create(fileDownloadUri)).body(image);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/images/{id}")
+    public ResponseEntity<?> deleteImage(@PathVariable Long id) {
+        try {
+            imageService.deleteImage(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/images/{id}")
+    public ResponseEntity<?> modifyImageMetadata(@PathVariable Long id,
+                                                 @RequestBody Image image) {
+        try {
+            Image updatedImage = imageService.updateImageMetadata(id, image);
+            return ResponseEntity.ok(updatedImage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred: " + e.getMessage());
+        }
+    }
 }
+
+
