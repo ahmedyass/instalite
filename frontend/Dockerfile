@@ -17,11 +17,7 @@ COPY . .
 RUN npm run build
 
 # Expose the port the app runs on
-EXPOSE 8080
-
-# Define environment variable
-ENV NODE_ENV production
+EXPOSE 4200
 
 # Run the application when the container starts
 CMD ["npm", "run", "start"]
-
