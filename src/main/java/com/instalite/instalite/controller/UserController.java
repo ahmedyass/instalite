@@ -5,9 +5,9 @@ import com.instalite.instalite.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.UUID;
 
 @RestController
@@ -29,13 +29,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseEntity<GetUserDto> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getById(id));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
         userService.deleteById(id);
         return ResponseEntity.status(204).build();
@@ -43,9 +43,10 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<GetUserDto> updateById(Authentication authentication,
-                                                 @PathVariable UUID id,
-                                                 @RequestBody EditUserDto request) {
-        return ResponseEntity.ok(userService.updateById(id, request, authentication.getName()));
+    public ResponseEntity<Void> updateById(@PathVariable UUID id,
+                                           @RequestBody EditUserDto request,
+                                           Principal principal) {
+        userService.updateById(id, request, principal.getName());
+        return ResponseEntity.ok(null);
     }
 }
