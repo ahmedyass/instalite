@@ -4,7 +4,6 @@ import lombok.*;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -30,4 +29,8 @@ public class Image implements Serializable {
 
     @Column(name = "date")
     private Date creationDate;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }
