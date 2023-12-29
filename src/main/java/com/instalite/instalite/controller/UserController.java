@@ -1,15 +1,14 @@
 package com.instalite.instalite.controller;
 
-import com.instalite.instalite.dto.LoginDto;
-import com.instalite.instalite.dto.RegisterDto;
-import com.instalite.instalite.dto.RegisterResponseDto;
+import com.instalite.instalite.dto.*;
 import com.instalite.instalite.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -19,12 +18,34 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDto> register(@RequestBody RegisterDto request) {
-        return ResponseEntity.ok(userService.register(request));
+    public ResponseEntity<Void> register(@RequestBody RegisterDto request) {
+        userService.register(request);
+        return ResponseEntity.ok(null);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<RegisterResponseDto> login(@RequestBody LoginDto request) {
+    public ResponseEntity<AuthenticatedDto> login(@RequestBody LoginDto request) {
         return ResponseEntity.ok(userService.login(request));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public ResponseEntity<GetUserDto> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.getById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
+        userService.deleteById(id);
+        return ResponseEntity.status(204).build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<GetUserDto> updateById(Authentication authentication,
+                                                 @PathVariable UUID id,
+                                                 @RequestBody EditUserDto request) {
+        return ResponseEntity.ok(userService.updateById(id, request, authentication.getName()));
     }
 }

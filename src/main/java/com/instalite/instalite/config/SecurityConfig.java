@@ -25,9 +25,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/v1/user/register").permitAll()
-                .requestMatchers("/api/v1/user/login").permitAll()
-                .requestMatchers("/api/v1/user/logout").permitAll()
+                .requestMatchers("/api/v1/user/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/private/**").hasAnyRole("PRIVILEGED_USER", "ADMINISTRATOR")
                 .anyRequest().hasRole("ADMINISTRATOR"))
@@ -38,9 +36,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .logout(logout -> logout
                 .logoutUrl("/api/v1/logout")
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setStatus(200);
-                })
+                .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200))
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID"));
 
