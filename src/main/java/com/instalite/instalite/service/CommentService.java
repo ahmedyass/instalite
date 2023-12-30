@@ -27,10 +27,10 @@ public class CommentService {
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
 
-    public PaginatedResultsDto<CommentDto> paginatedComments(UUID imageId, int page, int size, boolean isPublic, Principal issuer) {
+    public PaginatedResultsDto<CommentDto> paginatedComments(UUID imageId, int page, int size, Boolean isPublic, Principal issuer) {
         var image = imageRepository.findById(imageId).orElseThrow();
         // Check if image is public
-        if (image.isPublic() != isPublic) {
+        if (image.getIsPublic() != isPublic) {
             throw new WrongEndpointException();
         }
         // Check rights to view comments
@@ -59,12 +59,12 @@ public class CommentService {
         return paginatedResults;
     }
 
-    public CommentDto create(UUID imageId, boolean isPublic, String text, String issuerUsername) {
+    public CommentDto create(UUID imageId, Boolean isPublic, String text, String issuerUsername) {
         var user = userRepository.findByUsername(issuerUsername)
             .orElseThrow(UserNotFoundException::new);
         var image = imageRepository.findById(imageId).orElseThrow();
         // Check if image is public
-        if (image.isPublic() != isPublic) {
+        if (image.getIsPublic() != isPublic) {
             throw new WrongEndpointException();
         }
         // Check rights to create comments
@@ -83,7 +83,7 @@ public class CommentService {
         return CommentDto.from(comment);
     }
 
-    public void deleteById(UUID commentId, UUID imageId, boolean isPublic, String issuerUsername) {
+    public void deleteById(UUID commentId, UUID imageId, Boolean isPublic, String issuerUsername) {
         var issuer = userRepository.findByUsername(issuerUsername)
             .orElseThrow(UserNotFoundException::new);
         var image = imageRepository.findById(imageId).orElseThrow();
@@ -93,7 +93,7 @@ public class CommentService {
             throw new WrongEndpointException();
         }
         // Check if image is public
-        if (comment.getImage().isPublic() != isPublic) {
+        if (comment.getImage().getIsPublic() != isPublic) {
             throw new WrongEndpointException();
         }
         // Check if user is owner of comment or admin

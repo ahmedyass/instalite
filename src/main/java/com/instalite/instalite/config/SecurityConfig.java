@@ -30,8 +30,8 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/user/**").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers("/api/private/**").hasAnyRole(ADMINISTRATOR.name(), PRIVILEGED_USER.name())
+                .requestMatchers("/api/v1/public/**").permitAll()
+                .requestMatchers("/api/v1/private/**").hasAnyRole(ADMINISTRATOR.name(), PRIVILEGED_USER.name())
                 .anyRequest().permitAll()
             )
 

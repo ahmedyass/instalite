@@ -2,9 +2,11 @@ package com.instalite.instalite.controller;
 
 import com.instalite.instalite.model.Image;
 import com.instalite.instalite.service.ImageService;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ public class ImageController {
     }
 
     @GetMapping("/private/images")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PRIVILEGED_USER')")
     public ResponseEntity<?> listAllPrivateImages(Pageable pageable) {
         return ResponseEntity.ok(imageService.getAllPrivateImages(pageable));
     }
@@ -45,6 +48,7 @@ public class ImageController {
     }
 
     @GetMapping("/private/images/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PRIVILEGED_USER')")
     public ResponseEntity<?> downloadPrivateImage(@PathVariable Long id) {
         try {
             URI imageUri = imageService.getImageUri(id, false);
@@ -55,6 +59,7 @@ public class ImageController {
     }
 
     @PostMapping("/images")
+    @PreAuthorize("hasRole(ADMINISTRATOR.name())")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file,
                                          @RequestParam("title") String title,
                                          @RequestParam("description") String description,
@@ -73,6 +78,7 @@ public class ImageController {
     }
 
     @DeleteMapping("/images/{id}")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<?> deleteImage(@PathVariable Long id) {
         try {
             imageService.deleteImage(id);
@@ -83,6 +89,7 @@ public class ImageController {
     }
 
     @PutMapping("/images/{id}")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<?> modifyImageMetadata(@PathVariable Long id,
                                                  @RequestBody Image image) {
         try {
