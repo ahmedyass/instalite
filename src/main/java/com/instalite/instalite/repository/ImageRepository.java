@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ImageRepository extends JpaRepository<Image, Long> {
+public interface ImageRepository extends JpaRepository<Image, UUID> {
     Page<Image> findAllByIsPublic(Boolean b, Pageable pageable);
-    Optional<Image> findByIdAndIsPublic(Long id, Boolean isPublic);
+    Optional<Image> findByIdAndIsPublic(UUID id, Boolean isPublic);
     Optional<Image> findById(UUID imageId);
 }

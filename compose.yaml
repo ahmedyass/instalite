@@ -1,14 +1,21 @@
+version: '3.8'
+
 services:
+  # MariaDB Database
   mariadb:
     image: 'mariadb:latest'
     container_name: mariadb-instalite
+    restart: always
     environment:
-      - 'MARIADB_DATABASE=mydatabase'
-      - 'MARIADB_PASSWORD=secret'
-      - 'MARIADB_ROOT_PASSWORD=verysecret'
-      - 'MARIADB_USER=myuser'
+      - 'MARIADB_DATABASE=instalite'
+      - 'MARIADB_PASSWORD=root'
+      - 'MARIADB_ROOT_PASSWORD=root'
+      - 'MARIADB_USER=root'
     ports:
       - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
   # Vue Frontend
   vue-app:
     build:
@@ -16,7 +23,8 @@ services:
       dockerfile: Dockerfile
     container_name: vue-instalite
     ports:
-      - "4200:4200"
+      - "4200:8080"
+
   # Spring Boot Backend
   spring-app:
     build:
@@ -27,3 +35,8 @@ services:
       - "8080:8080"
     depends_on:
       - mariadb
+    volumes:
+      - ./storage:/app/storage
+
+volumes:
+  mariadb-data:

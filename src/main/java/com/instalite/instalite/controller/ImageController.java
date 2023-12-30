@@ -14,6 +14,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -38,7 +39,7 @@ public class ImageController {
     }
 
     @GetMapping("/public/images/{id}")
-    public ResponseEntity<?> downloadPublicImage(@PathVariable Long id) {
+    public ResponseEntity<?> downloadPublicImage(@PathVariable UUID id) {
         try {
             URI imageUri = imageService.getImageUri(id, true);
             return ResponseEntity.ok().body(Map.of("url", imageUri.toString()));
@@ -49,7 +50,7 @@ public class ImageController {
 
     @GetMapping("/private/images/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PRIVILEGED_USER')")
-    public ResponseEntity<?> downloadPrivateImage(@PathVariable Long id) {
+    public ResponseEntity<?> downloadPrivateImage(@PathVariable UUID id) {
         try {
             URI imageUri = imageService.getImageUri(id, false);
             return ResponseEntity.ok().body(Map.of("url", imageUri.toString()));
@@ -79,7 +80,7 @@ public class ImageController {
 
     @DeleteMapping("/images/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public ResponseEntity<?> deleteImage(@PathVariable Long id) {
+    public ResponseEntity<?> deleteImage(@PathVariable UUID id) {
         try {
             imageService.deleteImage(id);
             return ResponseEntity.ok().build();
@@ -90,7 +91,7 @@ public class ImageController {
 
     @PutMapping("/images/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public ResponseEntity<?> modifyImageMetadata(@PathVariable Long id,
+    public ResponseEntity<?> modifyImageMetadata(@PathVariable UUID id,
                                                  @RequestBody Image image) {
         try {
             Image updatedImage = imageService.updateImageMetadata(id, image);

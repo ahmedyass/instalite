@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/user/**").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
-                .requestMatchers("/api/v1/private/**").hasAnyRole(ADMINISTRATOR.name(), PRIVILEGED_USER.name())
+                .requestMatchers("/api/v1/private/**").hasAnyAuthority(ADMINISTRATOR.name(), PRIVILEGED_USER.name())
                 .anyRequest().permitAll()
             )
 

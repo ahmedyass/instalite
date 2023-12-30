@@ -31,7 +31,7 @@ public class ImageService {
     @Autowired
     public ImageService(ImageRepository imageRepository) {
         this.imageRepository = imageRepository;
-        String relativePath = "storage";
+        String relativePath = "/app/storage";
         this.fileStorageLocation = Paths.get(relativePath).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -60,7 +60,7 @@ public class ImageService {
         Page<Image> images = imageRepository.findAllByIsPublic(false, pageable);
         return images.map(this::convertToDTO);
     }
-    public URI getImageUri(Long id, Boolean isPublic) throws Exception {
+    public URI getImageUri(UUID id, Boolean isPublic) throws Exception {
         Optional<Image> imageOptional = imageRepository.findByIdAndIsPublic(id, isPublic);
         if (imageOptional.isPresent()) {
             Image image = imageOptional.get();
@@ -103,7 +103,7 @@ public class ImageService {
         return imageRepository.save(image);
     }
 
-    public void deleteImage(Long id) throws Exception {
+    public void deleteImage(UUID id) throws Exception {
         Optional<Image> imageOptional = imageRepository.findById(id);
         if (imageOptional.isPresent()) {
             Image image = imageOptional.get();
@@ -125,7 +125,7 @@ public class ImageService {
         }
     }
 
-    public Image updateImageMetadata(Long id, Image newImage) throws Exception {
+    public Image updateImageMetadata(UUID id, Image newImage) throws Exception {
         return imageRepository.findById(id)
                 .map(image -> {
                     if (newImage.getTitle() != null) {
