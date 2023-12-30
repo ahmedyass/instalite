@@ -1,12 +1,11 @@
 package com.instalite.instalite.model;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Getter
+@RequiredArgsConstructor
 public enum UserRole {
-    VISITOR,
     USER,
-    PRIVILEGED_USER,
-    ADMINISTRATOR
+    ADMINISTRATOR,
+    PRIVILEGED_USER
 }
 
