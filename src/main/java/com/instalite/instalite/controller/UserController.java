@@ -34,9 +34,8 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    // Default value for page is 0, and for size is 10
-    public ResponseEntity<PaginatedResultsDto<GetUserDto>> getPaginatedLivreurs(@RequestParam(defaultValue = "0") int page,
-                                                                                @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<PaginatedResultsDto<GetUserDto>> getPaginatedUsers(@RequestParam(defaultValue = "0") int page,
+                                                                             @RequestParam(defaultValue = "10") int size) {
 
         PaginatedResultsDto<GetUserDto> searchResultsDto = userService.paginatedUsers(page, size);
         return ResponseEntity.ok(searchResultsDto);

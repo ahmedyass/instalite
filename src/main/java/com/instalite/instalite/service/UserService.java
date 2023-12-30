@@ -127,19 +127,29 @@ public class UserService {
             return;
         }
 
+        boolean invalidateTokens = false;
         if (request.getRole() != null && issuer.getRole().equals(UserRole.ADMINISTRATOR)) {
             try {
                 user.setRole(UserRole.valueOf(UserRole.class, request.getRole()));
             } catch (IllegalArgumentException e) {
                 throw new InvalidRoleException();
             }
+            invalidateTokens = true;
         }
-        if (request.getUsername() != null)
+        if (request.getUsername() != null) {
             user.setUsername(request.getUsername());
+            invalidateTokens = true;
+        }
         if (request.getPassword() != null)
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         if (request.getEmail() != null)
             user.setEmail(request.getEmail());
+        if (invalidateTokens) {
+            revokeAllUserTokens(user);
+            // TODO: Generate new token for user and send it
+//            var jwtToken = jwtService.generateToken(user);
+//            savedUserTokens(user, jwtToken);
+        }
         userRepository.save(user);
     }
 
