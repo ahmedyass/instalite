@@ -10,6 +10,7 @@ import com.instalite.instalite.model.UserRole;
 import com.instalite.instalite.repository.TokenRepository;
 import com.instalite.instalite.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,8 @@ public class UserService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+
+    // Authentication
 
     public void register(RegisterDto request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -76,6 +79,24 @@ public class UserService {
             token.setRevoked(true);
         });
         tokenRepository.saveAll(validUserTokens);
+    }
+
+    // User
+
+    public PaginatedResultsDto<GetUserDto> paginatedUsers(int page, int size) {
+        var users = userRepository.findAll(Pageable.ofSize(size).withPage(page));
+        var paginatedResults = PaginatedResultsDto.from(users.map(user -> GetUserDto.builder()
+            .id(user.getId())
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .role(user.getRole().name())
+            .build()
+        ));
+        paginatedResults.setPage(users.getNumber());
+        paginatedResults.setItemsPerPage(users.getNumberOfElements());
+        paginatedResults.setItemCount(users.getTotalElements());
+        paginatedResults.setPageCount(users.getTotalPages());
+        return paginatedResults;
     }
 
     public GetUserDto getById(UUID id) {

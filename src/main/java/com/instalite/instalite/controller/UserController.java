@@ -11,11 +11,13 @@ import java.security.Principal;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+    // Athentication
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody RegisterDto request) {
@@ -26,6 +28,18 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticatedDto> login(@RequestBody LoginDto request) {
         return ResponseEntity.ok(userService.login(request));
+    }
+
+    // User
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    // Default value for page is 0, and for size is 10
+    public ResponseEntity<PaginatedResultsDto<GetUserDto>> getPaginatedLivreurs(@RequestParam(defaultValue = "0") int page,
+                                                                                @RequestParam(defaultValue = "10") int size) {
+
+        PaginatedResultsDto<GetUserDto> searchResultsDto = userService.paginatedUsers(page, size);
+        return ResponseEntity.ok(searchResultsDto);
     }
 
     @GetMapping("/{id}")
