@@ -43,9 +43,9 @@ public class CommentController {
     @PostMapping("{visibility}/images/{imageId}/comments")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CommentDto> create(@PathVariable String visibility,
-                                       @PathVariable UUID imageId,
-                                       @RequestBody String text,
-                                       Principal principal) {
+                                             @PathVariable UUID imageId,
+                                             @RequestBody String text,
+                                             Principal principal) {
         var comment = commentService.create(imageId, visiblityToBoolean(visibility), text, principal.getName());
         return ResponseEntity.ok(comment);
     }
@@ -58,6 +58,18 @@ public class CommentController {
                                            Principal principal) {
         commentService.deleteById(commentId, imageId, visiblityToBoolean(visibility), principal.getName());
         return ResponseEntity.status(204).build();
+    }
+
+    @PutMapping("{visibility}/images/{imageId}/comments/{commentId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<CommentDto> updateById(@PathVariable String visibility,
+                                                 @PathVariable UUID imageId,
+                                                 @PathVariable UUID commentId,
+                                                 @RequestBody String text,
+                                                 Principal principal) {
+        var comment = commentService.updateById(commentId, imageId, visiblityToBoolean(visibility), text,
+                principal.getName());
+        return ResponseEntity.ok(comment);
     }
 
 }

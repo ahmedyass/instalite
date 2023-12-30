@@ -29,7 +29,7 @@ public class CommentService {
 
     public PaginatedResultsDto<CommentDto> paginatedComments(UUID imageId, int page, int size, boolean isPublic, Principal issuer) {
         var image = imageRepository.findById(imageId).orElseThrow();
-        // Check if image is public
+        // Check if using correct endpoint
         if (image.isPublic() != isPublic) {
             throw new WrongEndpointException();
         }
@@ -44,14 +44,7 @@ public class CommentService {
         }
         var comments = commentRepository.findAllByImage(image, Pageable.ofSize(size).withPage(page));
 
-        var paginatedResults = PaginatedResultsDto.from(comments.map(comment -> CommentDto.builder()
-            .id(comment.getId())
-            .imageId(comment.getImage().getId())
-            .userId(comment.getUser().getId())
-            .text(comment.getText())
-            .timestamp(comment.getTimestamp())
-            .build()
-        ));
+        var paginatedResults = PaginatedResultsDto.from(comments.map(CommentDto::from));
         paginatedResults.setPage(comments.getNumber());
         paginatedResults.setItemsPerPage(comments.getNumberOfElements());
         paginatedResults.setItemCount(comments.getTotalElements());
@@ -63,7 +56,7 @@ public class CommentService {
         var user = userRepository.findByUsername(issuerUsername)
             .orElseThrow(UserNotFoundException::new);
         var image = imageRepository.findById(imageId).orElseThrow();
-        // Check if image is public
+        // Check if using correct endpoint
         if (image.isPublic() != isPublic) {
             throw new WrongEndpointException();
         }
@@ -84,6 +77,21 @@ public class CommentService {
     }
 
     public void deleteById(UUID commentId, UUID imageId, boolean isPublic, String issuerUsername) {
+        deleteAndEditChecks(commentId, imageId, isPublic, issuerUsername);
+
+        commentRepository.deleteById(commentId);
+    }
+
+    public CommentDto updateById(UUID commentId, UUID imageId, boolean isPublic, String text, String issuerUsername) {
+        var comment = deleteAndEditChecks(commentId, imageId, isPublic, issuerUsername);
+
+        comment.setText(text);
+        comment = commentRepository.save(comment);
+        return CommentDto.from(comment);
+    }
+
+    // Helper method for delete and update
+    private Comment deleteAndEditChecks(UUID commentId, UUID imageId, boolean isPublic, String issuerUsername) {
         var issuer = userRepository.findByUsername(issuerUsername)
             .orElseThrow(UserNotFoundException::new);
         var image = imageRepository.findById(imageId).orElseThrow();
@@ -92,14 +100,15 @@ public class CommentService {
         if (!comment.getImage().equals(image)) {
             throw new WrongEndpointException();
         }
-        // Check if image is public
-        if (comment.getImage().isPublic() != isPublic) {
+        // Check if using correct endpoint
+        if (image.isPublic() != isPublic) {
             throw new WrongEndpointException();
         }
         // Check if user is owner of comment or admin
         if (!comment.getUser().equals(issuer) && !issuer.getRole().equals(ADMINISTRATOR)) {
             throw new WrongEndpointException();
         }
-        commentRepository.deleteById(commentId);
+
+        return comment;
     }
 }
