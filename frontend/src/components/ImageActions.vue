@@ -8,13 +8,13 @@
       </template>
 
       <v-list>
-        <v-list-item @click="showEditModal = true" rounded="lg">
+        <v-list-item v-if="getUserRole() === 'ADMINISTRATOR'" @click="showEditModal = true" rounded="lg">
           <template v-slot:prepend>
             <v-icon>mdi-pencil-outline</v-icon>
           </template>
           <v-list-item-title> Edit</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="confirmDelete = true" rounded="lg">
+        <v-list-item v-if="getUserRole() === 'ADMINISTRATOR'" @click="confirmDelete = true" rounded="lg">
           <template v-slot:prepend>
             <v-icon>mdi-delete-outline</v-icon>
           </template>
@@ -68,11 +68,24 @@
 <script>
 import axios from 'axios';
 import { ref } from 'vue';
+import {jwtDecode} from "jwt-decode";
 
 export default {
   props: {
     imageId: Number,
     initialImage: Object
+  },
+  methods: {
+    getUserRole() {
+      const token = localStorage.getItem('user-token');
+      if (!token) return null;
+      try {
+        const decoded = jwtDecode(token);
+        return decoded.role;
+      } catch (error) {
+        return null;
+      }
+    },
   },
   setup(props) {
     const showEditModal = ref(false);
@@ -81,9 +94,14 @@ export default {
     const snackbar = ref(false);
     const snackbarText = ref('');
     const snackbarColor = ref('');
+    const token = localStorage.getItem('user-token');
 
     const updateImage = () => {
-      axios.put(`http://localhost:8080/api/v1/images/${props.imageId}`, editedImage.value)
+      axios.put(`http://localhost:8080/api/v1/images/${props.imageId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
         .then(() => {
           showEditModal.value = false;
           showSnackbar('Image updated successfully', 'success');
@@ -95,7 +113,11 @@ export default {
     };
 
     const deleteImage = () => {
-      axios.delete(`http://localhost:8080/api/v1/images/${props.imageId}`)
+      axios.delete(`http://localhost:8080/api/v1/images/${props.imageId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
         .then(() => {
           confirmDelete.value = false;
           showSnackbar('Image deleted successfully', 'success');

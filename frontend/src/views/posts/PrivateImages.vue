@@ -63,7 +63,17 @@ export default {
   },
   methods: {
     loadMore() {
-      axios.get(`http://localhost:8080/api/v1/private/images?page=${this.page}&size=3`)
+      const token = localStorage.getItem('user-token');
+      if (!token) {
+        console.error('No token found in local storage');
+        return;
+      }
+
+      axios.get(`http://localhost:8080/api/v1/private/images?page=${this.page}&size=3`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
         .then(response => {
           const newImages = response.data.content;
           if (newImages.length > 0) {
@@ -73,7 +83,9 @@ export default {
             this.allLoaded = true;
           }
         })
-        .catch(error => console.error(error));
+        .catch(error => {
+          console.error('Error loading images:', error);
+        });
     },
     showImageModal(image) {
       this.selectedImage = image;

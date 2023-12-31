@@ -50,6 +50,9 @@ export default {
       }
     },
     uploadImage() {
+
+      //const token = localStorage.getItem('user-token');
+
       if (!this.imageFile) {
         this.showSnackbar('Please select a file to upload.', 'red');
         return;
@@ -68,7 +71,10 @@ export default {
       axios({
         method: 'post',
         url: 'http://localhost:8080/api/v1/images',
-        data: formData
+        data: formData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('user-token')}`
+        }
       })
         .then(response => {
           this.showSnackbar('Image uploaded successfully', 'green');

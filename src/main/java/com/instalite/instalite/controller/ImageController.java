@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,14 +29,16 @@ public class ImageController {
     }
 
     @GetMapping("/public/images")
-    public ResponseEntity<?> listAllPublicImages(Pageable pageable) {
-        return ResponseEntity.ok(imageService.getAllPublicImages(pageable));
+    public ResponseEntity<?> listAllPublicImages(@RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(imageService.getAllPublicImages(page, size));
     }
 
     @GetMapping("/private/images")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PRIVILEGED_USER')")
-    public ResponseEntity<?> listAllPrivateImages(Pageable pageable) {
-        return ResponseEntity.ok(imageService.getAllPrivateImages(pageable));
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'PRIVILEGED_USER')")
+    public ResponseEntity<?> listAllPrivateImages(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(imageService.getAllPrivateImages(page, size));
     }
 
     @GetMapping("/public/images/{id}")
@@ -49,7 +52,7 @@ public class ImageController {
     }
 
     @GetMapping("/private/images/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PRIVILEGED_USER')")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'PRIVILEGED_USER')")
     public ResponseEntity<?> downloadPrivateImage(@PathVariable UUID id) {
         try {
             URI imageUri = imageService.getImageUri(id, false);
@@ -60,7 +63,7 @@ public class ImageController {
     }
 
     @PostMapping("/images")
-    @PreAuthorize("hasRole(ADMINISTRATOR.name())")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file,
                                          @RequestParam("title") String title,
                                          @RequestParam("description") String description,
@@ -79,7 +82,7 @@ public class ImageController {
     }
 
     @DeleteMapping("/images/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseEntity<?> deleteImage(@PathVariable UUID id) {
         try {
             imageService.deleteImage(id);
@@ -90,7 +93,7 @@ public class ImageController {
     }
 
     @PutMapping("/images/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseEntity<?> modifyImageMetadata(@PathVariable UUID id,
                                                  @RequestBody Image image) {
         try {

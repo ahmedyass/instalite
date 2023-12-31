@@ -2,10 +2,14 @@ package com.instalite.instalite.service;
 
 import com.instalite.instalite.dto.ImageDTO;
 import com.instalite.instalite.model.Image;
+import com.instalite.instalite.model.User;
 import com.instalite.instalite.repository.ImageRepository;
 
+import com.instalite.instalite.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,12 +29,14 @@ import java.util.UUID;
 public class ImageService {
 
     private final ImageRepository imageRepository;
+    private final UserRepository userRepository;
 
     private final Path fileStorageLocation;
 
     @Autowired
-    public ImageService(ImageRepository imageRepository) {
+    public ImageService(ImageRepository imageRepository, UserRepository userRepository) {
         this.imageRepository = imageRepository;
+        this.userRepository = userRepository;
         String relativePath = "/app/storage";
         this.fileStorageLocation = Paths.get(relativePath).toAbsolutePath().normalize();
         try {
@@ -51,13 +57,13 @@ public class ImageService {
 
         return dto;
     }
-    public Page<ImageDTO> getAllPublicImages(Pageable pageable) {
-        Page<Image> images = imageRepository.findAllByIsPublic(true, pageable);
+    public Page<ImageDTO> getAllPublicImages(int page, int size) {
+        Page<Image> images = imageRepository.findAllByIsPublic(true, Pageable.ofSize(size).withPage(page));
         return images.map(this::convertToDTO);
     }
 
-    public Page<ImageDTO> getAllPrivateImages(Pageable pageable) {
-        Page<Image> images = imageRepository.findAllByIsPublic(false, pageable);
+    public Page<ImageDTO> getAllPrivateImages(int page, int size) {
+        Page<Image> images = imageRepository.findAllByIsPublic(false, Pageable.ofSize(size).withPage(page));
         return images.map(this::convertToDTO);
     }
     public URI getImageUri(UUID id, Boolean isPublic) throws Exception {
@@ -93,12 +99,24 @@ public class ImageService {
             throw new Exception("Could not store file " + filename + ". Please try again!", ex);
         }
 
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        //User currentUser = userRepository.findByUsername(username)
+        //        .orElseThrow(() -> new Exception("User not found"));
+
         Image image = new Image();
         image.setFilename(filename);
         image.setTitle(title);
         image.setDescription(description);
         image.setIsPublic(isPublic);
         image.setCreationDate(new Date());
+        //image.setUser(currentUser);
 
         return imageRepository.save(image);
     }
