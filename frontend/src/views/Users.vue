@@ -6,6 +6,7 @@
       :items-per-page="pagination.itemsPerPage"
       :page.sync="pagination.page"
       :server-items-length="pagination.itemCount"
+      @update:page="fetchUsers"
       class="elevation-1"
     >
       <template v-slot:item.action="{ item }">
@@ -27,8 +28,10 @@
       </template>
     </v-data-table>
 
-    <edit-user-modal v-if="selectedUser" :key="selectedUser.id" v-model="editDialog" :user="selectedUser" @updated="fetchUsers"></edit-user-modal>
+    <!-- Edit Modal -->
+    <edit-user-modal ref="editUserModal" :user="selectedUser" @updated="fetchUsers"></edit-user-modal>
 
+    <!-- Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
         <v-card-title class="headline">Are you sure?</v-card-title>
@@ -41,6 +44,7 @@
       </v-card>
     </v-dialog>
 
+    <!-- Snackbar -->
     <v-snackbar v-model="snackbar.show" :color="snackbar.color">
       {{ snackbar.text }}
       <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
@@ -51,71 +55,91 @@
 <script>
 import axios from 'axios';
 import EditUserModal from '@/components/EditUserModal.vue';
+import { ref, onMounted } from 'vue';
 
 export default {
   components: { EditUserModal },
-  data() {
-    return {
-      users: [],
-      pagination: {
-        page: 1,
-        itemsPerPage: 10,
-        itemCount: 0,
-        pageCount: 0
-      },
-      headers: [
-        { text: 'Username', value: 'username' },
-        { text: 'Email', value: 'email' },
-        { text: 'Role', value: 'role' },
-        { text: 'Actions', value: 'action', sortable: false }
-      ],
-      selectedUser: null,
-      editDialog: false,
-      deleteDialog: false,
-      snackbar: { show: false, color: '', text: '' }
-    };
-  },
-  created() {
-    this.fetchUsers();
-  },
-  methods: {
-    fetchUsers() {
+  setup() {
+    const users = ref([]);
+    const pagination = ref({
+      page: 1,
+      itemsPerPage: 10,
+      itemCount: 0,
+      pageCount: 0
+    });
+    const headers = ref([
+      { text: 'Username', value: 'username' },
+      { text: 'Email', value: 'email' },
+      { text: 'Role', value: 'role' },
+      { text: 'Actions', value: 'action', sortable: false }
+    ]);
+    const selectedUser = ref(null);
+    const editUserModal = ref(null);
+    const deleteDialog = ref(false);
+    const snackbar = ref({ show: false, color: '', text: '' });
+
+    const fetchUsers = () => {
       const token = localStorage.getItem('user-token');
-      axios.get(`http://localhost:8080/api/v1/users?page=${this.pagination.page - 1}&size=${this.pagination.itemsPerPage}`, { headers: { 'Authorization': `Bearer ${token}` } })
+      axios.get(`http://localhost:8080/api/v1/users?page=${pagination.value.page - 1}&size=${pagination.value.itemsPerPage}`, { headers: { 'Authorization': `Bearer ${token}` } })
         .then(response => {
-          this.users = response.data.data;
-          this.pagination.itemCount = response.data.itemCount;
-          this.pagination.pageCount = response.data.pageCount;
+          users.value = response.data.data;
+          pagination.value.itemCount = response.data.itemCount;
+          pagination.value.pageCount = response.data.pageCount;
         })
         .catch(error => {
-          this.showSnackbar('Failed to fetch users', 'error');
+          showSnackbar('Failed to fetch users', 'error');
         });
-    },
-    openEditModal(user) {
-      this.selectedUser = user;
-      this.editDialog = true;
-    },
-    confirmDelete(user) {
-      this.selectedUser = user;
-      this.deleteDialog = true;
-    },
-    deleteUser() {
+    };
+
+    const openEditModal = (user) => {
+      selectedUser.value = user;
+      editUserModal.value.open(user);
+    };
+
+    const confirmDelete = (user) => {
+      selectedUser.value = user;
+      deleteDialog.value = true;
+    };
+
+    const deleteUser = () => {
       const token = localStorage.getItem('user-token');
-      axios.delete(`http://localhost:8080/api/v1/users/${this.selectedUser.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
+      axios.delete(`http://localhost:8080/api/v1/users/${selectedUser.value.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
         .then(() => {
-          this.deleteDialog = false;
-          this.showSnackbar('User deleted successfully', 'success');
-          this.fetchUsers();
+          deleteDialog.value = false;
+          showSnackbar('User deleted successfully', 'success');
+          fetchUsers();
         })
         .catch(error => {
-          this.showSnackbar('Failed to delete user', 'error');
+          showSnackbar('Failed to delete user', 'error');
         });
-    },
-    showSnackbar(text, color) {
-      this.snackbar.text = text;
-      this.snackbar.color = color;
-      this.snackbar.show = true;
-    }
+    };
+
+    const showSnackbar = (text, color) => {
+      snackbar.value.text = text;
+      snackbar.value.color = color;
+      snackbar.value.show = true;
+    };
+
+    onMounted(fetchUsers);
+
+    return {
+      users,
+      pagination,
+      headers,
+      selectedUser,
+      deleteDialog,
+      snackbar,
+      editUserModal,
+      fetchUsers,
+      openEditModal,
+      confirmDelete,
+      deleteUser,
+      showSnackbar
+    };
   }
 };
 </script>
+
+
+
+

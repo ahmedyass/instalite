@@ -5,9 +5,25 @@
       <v-card-text>
         <v-container>
           <v-form ref="form" v-model="valid">
-            <v-text-field label="Username" v-model="editedUser.username" :rules="[rules.required]" required></v-text-field>
-            <v-text-field label="Email" v-model="editedUser.email" :rules="[rules.required, rules.email]" required></v-text-field>
-            <v-select label="Role" v-model="editedUser.role" :items="roles" :rules="[rules.required]" required></v-select>
+            <v-text-field
+              label="Username"
+              v-model="editedUser.username"
+              :rules="[rules.required]"
+              required
+            ></v-text-field>
+            <v-text-field
+              label="Email"
+              v-model="editedUser.email"
+              :rules="[rules.required, rules.email]"
+              required
+            ></v-text-field>
+            <v-select
+              label="Role"
+              v-model="editedUser.role"
+              :items="roles"
+              :rules="[rules.required]"
+              required
+            ></v-select>
           </v-form>
         </v-container>
       </v-card-text>
@@ -21,50 +37,64 @@
 </template>
 
 <script>
+import { ref } from 'vue'; // Ensure ref is imported from 'vue'
 import axios from 'axios';
 
 export default {
   props: {
     value: Boolean,
-    user: Object
-  },
-  data() {
-    return {
-      dialog: false,
-      valid: false,
-      editedUser: {},
-      roles: ['USER', 'ADMINISTRATOR', 'PRIVILEGED_USER'],
-      rules: {
-        required: value => !!value || 'Required.',
-        email: value => /.+@.+\..+/.test(value) || 'E-mail must be valid.'
-      }
-    };
-  },
-  watch: {
-    value(val) {
-      this.dialog = val;
-      if (val) {
-        this.editedUser = Object.assign({}, this.user);
-      }
+    user: {
+      type: Object,
+      default: () => ({})
     }
   },
-  methods: {
-    cancel() {
-      this.dialog = false;
-    },
-    save() {
-      if (this.$refs.form.validate()) {
+  setup(props, { expose , emit }) {
+    const dialog = ref(false);
+    const valid = ref(false);
+    const editedUser = ref({});
+    const roles = ref(['USER', 'ADMINISTRATOR', 'PRIVILEGED_USER']);
+    const rules = {
+      required: value => !!value || 'Required.',
+      email: value => /.+@.+\..+/.test(value) || 'E-mail must be valid.',
+    };
+
+
+    const save = () => {
+      if (valid.value) {
         const token = localStorage.getItem('user-token');
-        axios.put(`http://localhost:8080/api/v1/users/${this.editedUser.id}`, this.editedUser, { headers: { 'Authorization': `Bearer ${token}` } })
+        axios.put(`http://localhost:8080/api/v1/users/${editedUser.value.id}`, editedUser.value, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
           .then(() => {
-            this.dialog = false;
-            this.$emit('updated');
+            dialog.value = false;
+            emit('updated');
           })
           .catch(error => {
             console.error('Error updating user:', error);
+            // Handle error
           });
       }
-    }
+    };
+
+    const open = (user) => {
+      editedUser.value = { ...user };
+      dialog.value = true;
+    };
+
+    expose({ open });
+    const cancel = () => {
+      dialog.value = false;
+    };
+
+    return {
+      dialog,
+      valid,
+      editedUser,
+      roles,
+      rules,
+      save,
+      cancel
+    };
   }
 };
 </script>
