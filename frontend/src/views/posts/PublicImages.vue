@@ -21,7 +21,7 @@
                       <h3>{{ image.title }}</h3>
                       <ImageActions :imageId="image.id" :initialImage="image" image-type="public" />
                     </v-card-title>
-                    <v-card-subtitle>username • {{ new Date(image.creationDate).toLocaleString() }}</v-card-subtitle>
+                    <v-card-subtitle>{{ image.username }} • {{ new Date(image.creationDate).toLocaleString() }}</v-card-subtitle>
                   </v-card-item>
                   <v-card-text>
                     <p>{{ image.description }}</p>
@@ -36,7 +36,7 @@
         </v-row>
       </div>
     </v-col>
-    <image-modal ref="imageModal" :image="selectedImage"></image-modal>
+    <image-modal ref="imageModal" :image="selectedImage" imageType="public"></image-modal>
   </v-container>
 </template>
 
