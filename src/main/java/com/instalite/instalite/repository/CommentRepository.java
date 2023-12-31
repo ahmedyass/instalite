@@ -11,5 +11,5 @@ import java.util.UUID;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
-    Page<Comment> findAllByImage(Image image, Pageable pageable);
+    Page<Comment> findAllByImageOrderByTimestampDesc(Image image, Pageable pageable);
 }

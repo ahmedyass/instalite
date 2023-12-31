@@ -58,12 +58,12 @@ public class ImageService {
         return dto;
     }
     public Page<ImageDTO> getAllPublicImages(int page, int size) {
-        Page<Image> images = imageRepository.findAllByIsPublic(true, Pageable.ofSize(size).withPage(page));
+        Page<Image> images = imageRepository.findAllByIsPublicOrderByCreationDateDesc(true, Pageable.ofSize(size).withPage(page));
         return images.map(this::convertToDTO);
     }
 
     public Page<ImageDTO> getAllPrivateImages(int page, int size) {
-        Page<Image> images = imageRepository.findAllByIsPublic(false, Pageable.ofSize(size).withPage(page));
+        Page<Image> images = imageRepository.findAllByIsPublicOrderByCreationDateDesc(false, Pageable.ofSize(size).withPage(page));
         return images.map(this::convertToDTO);
     }
     public URI getImageUri(UUID id, Boolean isPublic) throws Exception {

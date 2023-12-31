@@ -42,7 +42,7 @@ public class CommentService {
                 throw new InvalidRoleException();
             }
         }
-        var comments = commentRepository.findAllByImage(image, Pageable.ofSize(size).withPage(page));
+        var comments = commentRepository.findAllByImageOrderByTimestampDesc(image, Pageable.ofSize(size).withPage(page));
 
         var paginatedResults = PaginatedResultsDto.from(comments.map(CommentDto::from));
         paginatedResults.setPage(comments.getNumber());
