@@ -151,7 +151,19 @@ export default {
     };
 
     const fetchComments = () => {
-      axios.get(`http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments`)
+      let url = `http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments`;
+
+      let config = {};
+      if (props.imageType === 'private') {
+        config = {
+          headers: {
+            ...authHeaders.headers,
+            'Content-Type': 'text/plain'
+          }
+        };
+      }
+
+      axios.get(url, config)
         .then(response => {
           comments.value = response.data.data.filter(comment => comment.imageId === props.image.id);
           console.log("Fetched comments:", comments.value);
@@ -160,7 +172,6 @@ export default {
           console.error('Error fetching comments:', error);
         });
     };
-
 
     watch(dialog, (newVal) => {
       if (newVal === true) {
