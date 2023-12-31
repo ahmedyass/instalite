@@ -25,6 +25,13 @@ services:
     ports:
       - "4200:8080"
 
+  # Check if the database is ready
+  check-db:
+    image: jwilder/dockerize:latest
+    depends_on:
+      - mariadb
+    command: 'dockerize -wait tcp://mariadb:3306 -timeout 120s'
+
   # Spring Boot Backend
   spring-app:
     build:
@@ -34,7 +41,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mariadb
+      - check-db
     volumes:
       - ./storage:/app/storage
 
