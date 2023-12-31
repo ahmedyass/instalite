@@ -152,7 +152,7 @@ export default {
     };
 
     const fetchComments = () => {
-      axios.get(`http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments`, authHeaders)
+      axios.get(`http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments`)
         .then(response => {
           comments.value = response.data.data.filter(comment => comment.imageId === props.image.id);
           console.log("Fetched comments:", comments.value);

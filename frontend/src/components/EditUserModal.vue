@@ -67,14 +67,14 @@ export default {
         })
           .then(() => {
             dialog.value = false;
-            emit('updated');
+            emit('update-success'); // Emit an event indicating a successful update
           })
           .catch(error => {
             console.error('Error updating user:', error);
-            // Handle error
           });
       }
     };
+
 
     const open = (user) => {
       editedUser.value = { ...user };

@@ -36,10 +36,11 @@ export default {
     windowWidth: window.innerWidth,
     menuItems: [
       { title: 'Home', icon: 'mdi-home', to: '/' },
-      { title: 'Public Images', icon: 'mdi-account-group-outline', to: '/public-images' },
-      { title: 'Private Images', icon: 'mdi-account', to: '/private-images', roles: ['PRIVILEGED_USER', 'ADMINISTRATOR'] },
+      { title: 'Public Images', icon: 'mdi-image-multiple-outline', to: '/public-images' },
+      { title: 'Private Images', icon: 'mdi-image-lock-outline', to: '/private-images', roles: ['PRIVILEGED_USER', 'ADMINISTRATOR'] },
       { title: 'Upload Image', icon: 'mdi-upload', to: '/upload-image', roles: ['ADMINISTRATOR'] },
-      { title: 'Users', icon: 'mdi-shield-account-outline', to: '/users', roles: ['ADMINISTRATOR'] },
+      { title: 'Users', icon: 'mdi-account-group-outline', to: '/users', roles: ['ADMINISTRATOR'] },
+      { title: 'UserProfile', icon: 'mdi-account-lock-outline', to: '/user-profile', roles: ['USER', 'PRIVILEGED_USER', 'ADMINISTRATOR']},
     ]
   }),
   mounted() {
@@ -52,7 +53,7 @@ export default {
     filteredMenuItems() {
       const userRole = this.getUserRole();
 
-      if (!userRole || userRole === 'USER') {
+      if (!userRole) {
         return this.menuItems.filter(item => !item.roles);
       }
 

@@ -11,7 +11,8 @@ import UploadImage from '@/views/posts/UploadImage.vue';
 import Login from '@/views/auth/Login.vue';
 import Register from '@/views/auth/Register.vue';
 import RegistrationSuccess from '@/views/auth/RegistrationSuccess.vue';
-import Users from "@/views/Users.vue";
+import Users from "@/views/users/Users.vue";
+import UserProfile from "@/views/users/UserProfile.vue";
 
 function getUserRole() {
   const token = localStorage.getItem('user-token');
@@ -59,6 +60,12 @@ const routes = [
         name: 'Users',
         meta: { requiresAuth: true, roles: ['ADMINISTRATOR'] }
       },
+      {
+        path: 'user-profile',
+        component: UserProfile,
+        name: 'UserProfile',
+        meta: { requiresAuth: true, roles: ['USER', 'PRIVILEGED_USER', 'ADMINISTRATOR'] }
+      },
     ]
   },
   {
@@ -105,7 +112,18 @@ const routes = [
       } else {
         next({ name: 'Home' });
       }
-    }
+    },
+  },
+  {
+    path: '/user-profile',
+    component: UserProfile,
+    beforeEnter: (to, from, next) => {
+      if (isAuthenticated()) {
+        next();
+      } else {
+        next({ name: 'Home' });
+      }
+    },
   }
 ];
 

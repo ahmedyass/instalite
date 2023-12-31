@@ -29,7 +29,8 @@
     </v-data-table>
 
     <!-- Edit Modal -->
-    <edit-user-modal ref="editUserModal" :user="selectedUser" @updated="fetchUsers"></edit-user-modal>
+    <edit-user-modal @update-success="handleUpdateSuccess" :user="selectedUser" ref="editUserModal"></edit-user-modal>
+
 
     <!-- Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="500px">
@@ -59,6 +60,12 @@ import { ref, onMounted } from 'vue';
 
 export default {
   components: { EditUserModal },
+  methods:{
+    handleUpdateSuccess() {
+      this.fetchUsers();
+      this.showSnackbar('User updated successfully', 'success');
+    },
+  },
   setup() {
     const users = ref([]);
     const pagination = ref({
