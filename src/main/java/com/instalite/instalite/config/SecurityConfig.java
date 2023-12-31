@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/user/**").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/private/**").hasAnyAuthority(ADMINISTRATOR.name(), PRIVILEGED_USER.name())
+                .requestMatchers("/api/v1/images/**").hasAuthority(ADMINISTRATOR.name())
                 .anyRequest().permitAll()
             )
 

@@ -19,7 +19,7 @@
                   <v-card-item>
                     <v-card-title class="d-flex justify-space-between">
                       <h3>{{ image.title }}</h3>
-                      <ImageActions :imageId="image.id" :initialImage="image" />
+                      <ImageActions :imageId="image.id" :initialImage="image" image-type="private" />
                     </v-card-title>
                     <v-card-subtitle>username • {{ new Date(image.creationDate).toLocaleString() }}</v-card-subtitle>
                   </v-card-item>

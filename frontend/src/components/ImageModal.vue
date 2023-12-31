@@ -13,18 +13,17 @@
 
       <!-- Comments List -->
       <v-card-text class="comments-container">
-        <v-list>
-          <v-list-item v-for="comment in comments" :key="comment.id">
-            <v-list-item-content>
-              <v-list-item-title>{{ comment.text }}</v-list-item-title>
-              <v-list-item-subtitle>Posted by {{ comment.username }}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
+        <div v-for="comment in comments" :key="comment.id" class="my-2">
+          <v-card class="comment-card" variant="tonal">
+            <!-- Comment Content -->
+            <v-card-title class="d-flex justify-space-between">
+              {{ comment.text }}
+              <v-spacer></v-spacer>
               <!-- Comment Action Menu -->
               <v-menu offset-y>
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon>mdi-dots-vertical</v-icon>
+                  <v-btn icon v-bind="attrs" v-on="on" variant="flat">
+                    <v-icon>mdi-dots-horizontal</v-icon>
                   </v-btn>
                 </template>
                 <v-list>
@@ -36,9 +35,10 @@
                   </v-list-item>
                 </v-list>
               </v-menu>
-            </v-list-item-action>
-          </v-list-item>
-        </v-list>
+            </v-card-title>
+            <v-card-subtitle>Posted by {{ comment.username }}</v-card-subtitle>
+          </v-card>
+        </div>
       </v-card-text>
 
       <!-- Comment Input Field (Fixed at Bottom) -->
@@ -69,7 +69,23 @@ export default {
     return {
       dialog: false,
       newComment: '',
-      comments: [] // Store fetched comments
+      comments: [
+        {
+          "text":"bla bla bla bla bla",
+          "username":"flan"
+        },
+        {
+          "text":"bla bla bla bla bla",
+          "username":"flan"
+        },{
+          "text":"bla bla bla bla bla",
+          "username":"flan"
+        },
+        {
+          "text":"bla bla bla bla bla",
+          "username":"flan"
+        }
+        ] // Store fetched comments
     };
   },
   methods: {

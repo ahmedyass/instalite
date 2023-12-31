@@ -72,8 +72,13 @@ import {jwtDecode} from "jwt-decode";
 
 export default {
   props: {
-    imageId: Number,
-    initialImage: Object
+    imageId: String,
+    initialImage: Object,
+    imageType: {
+      type: String,
+      required: true,
+      validator: value => ['public', 'private'].includes(value)
+    }
   },
   methods: {
     getUserRole() {
@@ -97,7 +102,7 @@ export default {
     const token = localStorage.getItem('user-token');
 
     const updateImage = () => {
-      axios.put(`http://localhost:8080/api/v1/images/${props.imageId}`, {
+      axios.put(`http://localhost:8080/api/v1/images/${props.imageId}`, editedImage.value, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -129,10 +134,22 @@ export default {
     };
 
     const downloadImage = () => {
-      axios.get(`http://localhost:8080/api/v1/private/images/${props.imageId}`)
+      let url = '';
+      let auths = {};
+
+      if (props.imageType === 'public') {
+        url = `http://localhost:8080/api/v1/public/images/${props.imageId}`;
+      } else if (props.imageType === 'private') {
+        url = `http://localhost:8080/api/v1/private/images/${props.imageId}`;
+        auths = { headers: {
+            'Authorization': `Bearer ${token}`
+        } };
+      }
+      console.log("url : " + url);
+      axios.get(url, auths)
         .then(response => {
-          const url = response.data.url;
-          window.open(url, '_blank');
+          const downloadUrl = response.data.url;
+          window.open(downloadUrl, '_blank');
         })
         .catch(error => console.error('Error fetching image URL', error));
     };
