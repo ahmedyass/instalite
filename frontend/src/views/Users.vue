@@ -12,7 +12,7 @@
       <template v-slot:item.action="{ item }">
         <v-menu open-on-hover>
           <template v-slot:activator="{ on, props }">
-            <v-btn icon small v-bind="props" v-on="on">
+            <v-btn icon small v-bind="props" v-on="on" variant="flat">
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
           </template>
