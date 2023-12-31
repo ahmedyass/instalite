@@ -27,7 +27,7 @@
                   </v-btn>
                 </template>
                 <v-list>
-                  <v-list-item @click="editComment(comment)">
+                  <v-list-item @click="openEditCommentModal(comment)">
                     <template v-slot:prepend>
                       <v-icon>mdi-pencil-outline</v-icon>
                     </template>
@@ -47,6 +47,7 @@
         </div>
       </v-card-text>
       <v-divider></v-divider>
+
       <!-- Comment Input Field (Fixed at Bottom) -->
       <v-card-actions class="comment-input" v-if="isAuthenticated()">
         <v-textarea v-model="newComment" append-icon="mdi-send" placeholder="Add a comment..." rows="1" @click:append="addComment" outlined></v-textarea>
@@ -63,6 +64,23 @@
     {{ snackbar.text }}
     <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
   </v-snackbar>
+
+  <!--  Edit comment modal-->
+  <v-dialog v-model="editCommentDialog" max-width="500px">
+    <v-card>
+      <v-card-title>Edit Comment</v-card-title>
+      <v-card-text>
+        <v-textarea v-model="editedComment.text" label="Edit Comment" rows="2" outlined></v-textarea>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" text @click="editCommentDialog = false">Cancel</v-btn>
+        <v-btn color="blue darken-1" text @click="editComment">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!--  Delete comment modal-->
   <v-dialog v-model="confirmDeleteDialog" max-width="290">
     <v-card>
       <v-card-title>Confirm Delete</v-card-title>
@@ -107,6 +125,8 @@ export default {
     const snackbar = ref({ show: false, text: '', color: '' });
     const confirmDeleteDialog = ref(false);
     const commentToDelete = ref(null);
+    const editCommentDialog = ref(false);
+    const editedComment = ref({ id: null, text: '' });
 
     const token = localStorage.getItem('user-token');
     if (token) {
@@ -168,18 +188,35 @@ export default {
         .then(() => {
           newComment.value = '';
           fetchComments();
-          snackbar.value = { show: true, text: 'Comment added successfully', color: 'success' };
+          snackbar.value = {show: true, text: 'Comment added successfully', color: 'success'};
         })
         .catch(error => {
           console.error('Error adding comment:', error);
-          snackbar.value = { show: true, text: 'Failed to add comment', color: 'error' };
+          snackbar.value = {show: true, text: 'Failed to add comment', color: 'error'};
         });
     };
 
-    const editComment = (comment) => {
+    const openEditCommentModal = (comment) => {
+      editedComment.value = { id: comment.id, text: comment.text };
+      editCommentDialog.value = true;
+    };
 
-      console.log('Edit comment:', comment);
-
+    const editComment = () => {
+      axios.put(`http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments/${editedComment.value.id}`, { text: editedComment.value.text }, {
+        headers: {
+          ...authHeaders.headers,
+          'Content-Type': 'text/plain'
+        }
+      })
+        .then(() => {
+          editCommentDialog.value = false;
+          fetchComments();
+          snackbar.value = { show: true, text: 'Comment updated successfully', color: 'success' };
+        })
+        .catch(error => {
+          console.error('Error editing comment:', error);
+          snackbar.value = { show: true, text: 'Failed to edit comment', color: 'error' };
+        });
     };
     const promptDeleteComment = (commentId) => {
       commentToDelete.value = commentId;
@@ -190,7 +227,7 @@ export default {
       axios.delete(`http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments/${commentToDelete.value}`, authHeaders)
         .then(() => {
           fetchComments();
-          snackbar.value = { show: true, text: 'Comment deleted successfully', color: 'success' };
+          snackbar.value = {show: true, text: 'Comment deleted successfully', color: 'success'};
         })
         .catch(error => {
             console.error('Error deleting comment:', error);
@@ -200,15 +237,28 @@ export default {
       confirmDeleteDialog.value = false;
     };
 
-    return { dialog, newComment, comments, open, close, fetchComments, addComment, canEditOrDelete, editComment, deleteComment, snackbar,
+    return {
+      dialog,
+      newComment,
+      comments,
+      open,
+      close,
+      fetchComments,
+      addComment,
+      canEditOrDelete,
+      editComment,
+      deleteComment,
+      snackbar,
       confirmDeleteDialog,
       commentToDelete,
-      promptDeleteComment };
+      promptDeleteComment,
+      editCommentDialog,
+      editedComment,
+      openEditCommentModal
+    };
   }
 };
 </script>
-
-
 
 
 <style>
