@@ -31,7 +31,7 @@ public class Image implements Serializable {
     @Column(name = "date")
     private Date creationDate;
 
-    //@ManyToOne
-    //@JoinColumn(name = "user_id", nullable = false)
-    //private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

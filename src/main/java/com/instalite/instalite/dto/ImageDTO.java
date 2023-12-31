@@ -13,4 +13,5 @@ public class ImageDTO {
     private Boolean isPublic;
     private String url;
     private Date creationDate;
+    private String username;
 }

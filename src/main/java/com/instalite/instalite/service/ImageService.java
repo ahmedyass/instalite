@@ -1,28 +1,26 @@
 package com.instalite.instalite.service;
 
 import com.instalite.instalite.dto.ImageDTO;
+import com.instalite.instalite.exception.UserNotFoundException;
 import com.instalite.instalite.model.Image;
 import com.instalite.instalite.model.User;
 import com.instalite.instalite.repository.ImageRepository;
-
 import com.instalite.instalite.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.StandardCopyOption;
-import java.util.Date;
-import java.util.Optional;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,6 +49,8 @@ public class ImageService {
         dto.setTitle(image.getTitle());
         dto.setDescription(image.getDescription());
         dto.setIsPublic(image.getIsPublic());
+        dto.setCreationDate(image.getCreationDate());
+        dto.setUsername(image.getUser().getUsername());
 
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/images/").toUriString();
         dto.setUrl(baseUrl + image.getFilename());
@@ -78,7 +78,7 @@ public class ImageService {
         }
     }
 
-    public Image uploadImage(MultipartFile file, String title, String description, Boolean isPublic) throws Exception {
+    public Image uploadImage(MultipartFile file, String title, String description, Boolean isPublic, String issuerUsername) throws Exception {
         if (file.isEmpty()) {
             throw new Exception("Failed to store empty file.");
         }
@@ -99,16 +99,8 @@ public class ImageService {
             throw new Exception("Could not store file " + filename + ". Please try again!", ex);
         }
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
-
-        //User currentUser = userRepository.findByUsername(username)
-        //        .orElseThrow(() -> new Exception("User not found"));
+        User currentUser = userRepository.findByUsername(issuerUsername)
+                .orElseThrow(UserNotFoundException::new);
 
         Image image = new Image();
         image.setFilename(filename);
@@ -116,7 +108,7 @@ public class ImageService {
         image.setDescription(description);
         image.setIsPublic(isPublic);
         image.setCreationDate(new Date());
-        //image.setUser(currentUser);
+        image.setUser(currentUser);
 
         return imageRepository.save(image);
     }
