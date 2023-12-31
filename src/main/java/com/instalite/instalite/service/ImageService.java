@@ -78,7 +78,7 @@ public class ImageService {
         }
     }
 
-    public Image uploadImage(MultipartFile file, String title, String description, Boolean isPublic, String issuerUsername) throws Exception {
+    public ImageDTO uploadImage(MultipartFile file, String title, String description, Boolean isPublic, String issuerUsername) throws Exception {
         if (file.isEmpty()) {
             throw new Exception("Failed to store empty file.");
         }
@@ -110,7 +110,17 @@ public class ImageService {
         image.setCreationDate(new Date());
         image.setUser(currentUser);
 
-        return imageRepository.save(image);
+        image = imageRepository.save(image);
+
+        ImageDTO dto = new ImageDTO();
+        dto.setId(image.getId());
+        dto.setTitle(image.getTitle());
+        dto.setDescription(image.getDescription());
+        dto.setIsPublic(image.getIsPublic());
+        dto.setCreationDate(image.getCreationDate());
+        dto.setUsername(image.getUser().getUsername());
+
+        return dto;
     }
 
     public void deleteImage(UUID id) throws Exception {
@@ -135,7 +145,7 @@ public class ImageService {
         }
     }
 
-    public Image updateImageMetadata(UUID id, Image newImage) throws Exception {
+    public ImageDTO updateImageMetadata(UUID id, Image newImage) throws Exception {
         return imageRepository.findById(id)
                 .map(image -> {
                     if (newImage.getTitle() != null) {
@@ -147,7 +157,16 @@ public class ImageService {
                     if (newImage.getIsPublic() != null) {
                         image.setIsPublic(newImage.getIsPublic());
                     }
-                    return imageRepository.save(image);
+
+                    var updatedImage = imageRepository.save(image);
+                    var dto = new ImageDTO();
+                    dto.setId(updatedImage.getId());
+                    dto.setTitle(updatedImage.getTitle());
+                    dto.setDescription(updatedImage.getDescription());
+                    dto.setIsPublic(updatedImage.getIsPublic());
+                    dto.setCreationDate(updatedImage.getCreationDate());
+                    dto.setUsername(updatedImage.getUser().getUsername());
+                    return dto;
                 })
                 .orElseThrow(() -> new Exception("Image not found with id " + id));
     }

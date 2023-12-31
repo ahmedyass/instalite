@@ -1,5 +1,6 @@
 package com.instalite.instalite.controller;
 
+import com.instalite.instalite.dto.ImageDTO;
 import com.instalite.instalite.model.Image;
 import com.instalite.instalite.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,7 @@ public class ImageController {
                                          @RequestParam("isPublic") Boolean isPublic,
                                          Principal principal) {
         try {
-            Image image = imageService.uploadImage(file, title, description, isPublic, principal.getName());
+            ImageDTO image = imageService.uploadImage(file, title, description, isPublic, principal.getName());
             String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/images/")
                     .path(image.getId().toString())
@@ -96,7 +97,7 @@ public class ImageController {
     public ResponseEntity<?> modifyImageMetadata(@PathVariable UUID id,
                                                  @RequestBody Image image) {
         try {
-            Image updatedImage = imageService.updateImageMetadata(id, image);
+            ImageDTO updatedImage = imageService.updateImageMetadata(id, image);
             return ResponseEntity.ok(updatedImage);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred: " + e.getMessage());
