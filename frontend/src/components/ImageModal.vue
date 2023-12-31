@@ -14,7 +14,7 @@
       <!-- Comments List -->
       <v-card-text class="comments-container">
         <div v-for="comment in comments" :key="comment.id" class="my-2">
-          <v-card class="comment-card" variant="tonal">
+          <v-card class="comment-card" variant="flat">
             <!-- Comment Content -->
             <v-card-title class="d-flex justify-space-between">
               {{ comment.text }}
@@ -55,7 +55,6 @@
   </v-dialog>
 </template>
 
-
 <script>
 import axios from 'axios';
 import { ref } from 'vue';
@@ -68,7 +67,7 @@ export default {
       required: true
     }
   },
-  setup() {
+  setup(props) {
     const dialog = ref(false);
     const newComment = ref('');
     const comments = ref([]);
@@ -82,6 +81,12 @@ export default {
       userId.value = decoded.sub;
     }
 
+    const authHeaders = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    };
+
     const open = () => {
       dialog.value = true;
       fetchComments();
@@ -92,7 +97,7 @@ export default {
     };
 
     const fetchComments = () => {
-      axios.get(`/api/v1/public/images/${this.image.id}/comments`, authHeaders)
+      axios.get(`http://localhost:8080/api/v1/public/images/${props.image.id}/comments`, authHeaders)
         .then(response => {
           comments.value = response.data;
         })
@@ -104,9 +109,10 @@ export default {
     };
 
     const addComment = () => {
-      if (!userRole.value) return; // Only authenticated users can add comments
+      if (!newComment.value.trim()) return;
+      if (!userRole.value) return;
 
-      axios.post(`/api/v1/public/images/${this.image.id}/comments`, { text: newComment.value }, authHeaders)
+      axios.post(`http://localhost:8080/api/v1/public/images/${props.image.id}/comments`, { text: newComment.value }, authHeaders)
         .then(() => {
           newComment.value = '';
           fetchComments();
@@ -114,10 +120,26 @@ export default {
         .catch(error => console.error('Error adding comment:', error));
     };
 
+    const editComment = (comment) => {
+
+      console.log('Edit comment:', comment);
+
+    };
+
+    const deleteComment = (commentId) => {
+      axios.delete(`http://localhost:8080/api/v1/public/images/${props.image.id}/comments/${commentId}`, authHeaders)
+        .then(() => {
+          fetchComments();
+        })
+        .catch(error => console.error('Error deleting comment:', error));
+    };
+
     return { dialog, newComment, comments, open, close, fetchComments, addComment, canEditOrDelete, editComment, deleteComment };
   }
 };
 </script>
+
+
 
 
 <style>
