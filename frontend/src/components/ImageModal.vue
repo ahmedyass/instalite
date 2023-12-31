@@ -2,7 +2,12 @@
   <v-dialog v-model="dialog" max-width="800px">
     <v-card>
       <!-- Image Title -->
-      <v-card-title>{{ image.title }}</v-card-title>
+      <v-card-title class="d-flex justify-space-between align-center">
+        {{ image.title }}
+        <v-btn icon @click="close" variant="flat" color="primary">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
       <v-divider></v-divider>
 
       <!-- Image Display -->
@@ -50,13 +55,7 @@
 
       <!-- Comment Input Field (Fixed at Bottom) -->
       <v-card-actions class="comment-input" v-if="isAuthenticated()">
-        <v-textarea v-model="newComment" append-icon="mdi-send" placeholder="Add a comment..." rows="1" @click:append="addComment" outlined></v-textarea>
-      </v-card-actions>
-
-      <!-- Closing Actions -->
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="primary" text @click="close">Close</v-btn>
+        <v-textarea v-model="newComment" append-icon="mdi-send" placeholder="Add a comment..." rows="1" @click:append="addComment" color="primary" outlined></v-textarea>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -265,6 +264,7 @@ export default {
 .comments-container {
   max-height: 300px;
   overflow-y: auto;
+  margin-bottom: 100px; /* Adjust this value based on the height of the comment input field */
 }
 
 .comment-input {
@@ -278,3 +278,4 @@ export default {
   overflow: hidden;
 }
 </style>
+

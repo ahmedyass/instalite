@@ -1,18 +1,18 @@
 <template>
   <v-container>
-    <v-col>
-      <div></div>
-      <v-row>
-        <div class="pa-4 mx-auto">
-          <h1>Welcome to the Image Gallery</h1>
+    <v-col cols="12" class="px-10">
+      <div>
+        <div class="pa-4 fit mx-auto">
+          <h1 class="pa-4">Image Gallery</h1>
+          <v-divider class="border-opacity-50 pa-2"></v-divider>
+
           <p>
-            This application demonstrates a simple image gallery with Vue.js,
-            Vite, and Vuetify. You can view public and private images, and
-            upload new images.
+            Instagram like application made by : <br>
+            <strong>Romain Hébert</strong> et <strong>Ahmed Yassine Faik</strong>
           </p>
+
         </div>
-      </v-row>
-      <div></div>
+      </div>
     </v-col>
   </v-container>
 </template>
@@ -22,3 +22,11 @@ export default {
   name: 'Home',
 }
 </script>
+<style>
+.fit {
+  width: 100%;
+  align-content: center;
+  align-items: center;
+  text-align: center;
+}
+</style>

@@ -4,7 +4,12 @@
     <v-toolbar-title>Instalite</v-toolbar-title>
   </v-app-bar>
   <v-navigation-drawer v-model="drawer" class="sidebar" app>
-    <v-list-item title="Instalite"></v-list-item>
+    <v-list-item>
+      <v-img :width="200"
+             aspect-ratio="16/9"
+             src="../assets/logo.png"
+      ></v-img>
+    </v-list-item>
     <v-divider></v-divider>
     <v-list density="compact" nav>
       <v-list-item v-for="item in filteredMenuItems" :key="item.title" :to="item.to" router
