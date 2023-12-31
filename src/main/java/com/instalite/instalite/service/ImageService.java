@@ -4,6 +4,7 @@ import com.instalite.instalite.dto.ImageDTO;
 import com.instalite.instalite.exception.UserNotFoundException;
 import com.instalite.instalite.model.Image;
 import com.instalite.instalite.model.User;
+import com.instalite.instalite.repository.CommentRepository;
 import com.instalite.instalite.repository.ImageRepository;
 import com.instalite.instalite.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,18 @@ public class ImageService {
 
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     private final Path fileStorageLocation;
 
     @Autowired
-    public ImageService(ImageRepository imageRepository, UserRepository userRepository) {
+    public ImageService(ImageRepository imageRepository,
+                        UserRepository userRepository,
+                        CommentRepository commentRepository) {
+
         this.imageRepository = imageRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
         String relativePath = "/app/storage";
         this.fileStorageLocation = Paths.get(relativePath).toAbsolutePath().normalize();
         try {
@@ -138,6 +144,8 @@ public class ImageService {
                 throw new Exception("Could not delete file: " + image.getFilename(), ex);
             }
 
+            // Delete all comments from database
+            commentRepository.deleteAllByImage(image);
             imageRepository.deleteById(id);
 
         } else {
