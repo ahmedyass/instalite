@@ -12,4 +12,5 @@ import java.util.UUID;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
     Page<Comment> findAllByImageOrderByTimestampDesc(Image image, Pageable pageable);
+    void deleteAllByImage(Image image);
 }
