@@ -2,14 +2,12 @@ package com.instalite.instalite.controller;
 
 import com.instalite.instalite.model.Image;
 import com.instalite.instalite.service.ImageService;
-
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -67,9 +65,10 @@ public class ImageController {
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file,
                                          @RequestParam("title") String title,
                                          @RequestParam("description") String description,
-                                         @RequestParam("isPublic") Boolean isPublic) {
+                                         @RequestParam("isPublic") Boolean isPublic,
+                                         Principal principal) {
         try {
-            Image image = imageService.uploadImage(file, title, description, isPublic);
+            Image image = imageService.uploadImage(file, title, description, isPublic, principal.getName());
             String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/images/")
                     .path(image.getId().toString())
