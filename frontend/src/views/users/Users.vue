@@ -6,6 +6,7 @@
       :items-per-page="pagination.itemsPerPage"
       :page.sync="pagination.page"
       :server-items-length="pagination.itemCount"
+      item-name="id"
       @update:page="fetchUsers"
       class="elevation-1"
     >

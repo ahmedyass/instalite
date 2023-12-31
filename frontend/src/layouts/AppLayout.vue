@@ -7,7 +7,7 @@
     <v-list-item>
       <v-img :width="200"
              aspect-ratio="16/9"
-             src="../assets/logo.png"
+             src="@/assets/logo.png"
       ></v-img>
     </v-list-item>
     <v-divider></v-divider>
