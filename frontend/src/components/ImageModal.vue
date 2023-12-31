@@ -21,8 +21,8 @@
               <v-spacer></v-spacer>
               <!-- Comment Action Menu -->
               <v-menu offset-y>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on" variant="flat">
+                <template v-slot:activator="{ on, props }">
+                  <v-btn icon v-bind="props" v-on="on" variant="flat">
                     <v-icon>mdi-dots-horizontal</v-icon>
                   </v-btn>
                 </template>
@@ -55,7 +55,10 @@
   </v-dialog>
 </template>
 
+
 <script>
+import axios from 'axios';
+import { ref } from 'vue';
 import { jwtDecode } from 'jwt-decode';
 
 export default {
@@ -65,71 +68,62 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      dialog: false,
-      newComment: '',
-      comments: [
-        {
-          "text":"bla bla bla bla bla",
-          "username":"flan"
-        },
-        {
-          "text":"bla bla bla bla bla",
-          "username":"flan"
-        },{
-          "text":"bla bla bla bla bla",
-          "username":"flan"
-        },
-        {
-          "text":"bla bla bla bla bla",
-          "username":"flan"
-        }
-        ] // Store fetched comments
-    };
-  },
-  methods: {
-    open() {
-      this.dialog = true;
-      this.fetchComments(); // Fetch comments when the modal is opened
-    },
-    close() {
-      this.dialog = false;
-    },
-    fetchComments() {
-      // Fetch comments from the backend
-      // axios.get(`/api/v1/public/images/${this.image.id}/comments`)
-      //   .then(response => {
-      //     this.comments = response.data;
-      //   });
-    },
-    addComment() {
-      // Post the new comment to the backend
-      // axios.post(`/api/v1/public/images/${this.image.id}/comments`, { text: this.newComment })
-      //   .then(() => {
-      //     this.newComment = '';
-      //     this.fetchComments(); // Refresh comments
-      //   });
-    },
-    editComment(comment) {
-      // Handle comment editing
-      // Show a dialog or another component to edit the comment
-    },
-    deleteComment(commentId) {
-      // Delete the comment from the backend
-      // axios.delete(`/api/v1/public/images/${this.image.id}/comments/${commentId}`)
-      //   .then(() => {
-      //     this.fetchComments(); // Refresh comments
-      //   });
+  setup() {
+    const dialog = ref(false);
+    const newComment = ref('');
+    const comments = ref([]);
+    const userRole = ref(null);
+    const userId = ref(null);
+
+    const token = localStorage.getItem('user-token');
+    if (token) {
+      const decoded = jwtDecode(token);
+      userRole.value = decoded.role;
+      userId.value = decoded.sub;
     }
+
+    const open = () => {
+      dialog.value = true;
+      fetchComments();
+    };
+
+    const close = () => {
+      dialog.value = false;
+    };
+
+    const fetchComments = () => {
+      axios.get(`/api/v1/public/images/${this.image.id}/comments`, authHeaders)
+        .then(response => {
+          comments.value = response.data;
+        })
+        .catch(error => console.error('Error fetching comments:', error));
+    };
+
+    const canEditOrDelete = (comment) => {
+      return userRole.value === 'ADMINISTRATOR' || userId.value === comment.userId;
+    };
+
+    const addComment = () => {
+      if (!userRole.value) return; // Only authenticated users can add comments
+
+      axios.post(`/api/v1/public/images/${this.image.id}/comments`, { text: newComment.value }, authHeaders)
+        .then(() => {
+          newComment.value = '';
+          fetchComments();
+        })
+        .catch(error => console.error('Error adding comment:', error));
+    };
+
+    return { dialog, newComment, comments, open, close, fetchComments, addComment, canEditOrDelete, editComment, deleteComment };
   }
 };
 </script>
 
+
 <style>
 .comments-container {
-  max-height: 300px; /* Adjust the height as needed */
-  overflow-y: auto; /* Make the comment list scrollable */
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .comment-input {
@@ -140,6 +134,6 @@ export default {
 }
 
 .v-dialog {
-  overflow: hidden; /* Prevent scrolling inside the entire dialog */
+  overflow: hidden;
 }
 </style>

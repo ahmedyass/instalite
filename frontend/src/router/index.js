@@ -11,6 +11,7 @@ import UploadImage from '@/views/posts/UploadImage.vue';
 import Login from '@/views/auth/Login.vue';
 import Register from '@/views/auth/Register.vue';
 import RegistrationSuccess from '@/views/auth/RegistrationSuccess.vue';
+import Users from "@/views/Users.vue";
 
 function getUserRole() {
   const token = localStorage.getItem('user-token');
@@ -26,6 +27,9 @@ function getUserRole() {
   }
 }
 
+function isAdmin() {
+  return getUserRole() === "ADMINISTRATOR";
+}
 function isAuthenticated() {
   return !!localStorage.getItem('user-token');
 }
@@ -47,6 +51,12 @@ const routes = [
         path: 'upload-image',
         component: UploadImage,
         name: 'UploadImage',
+        meta: { requiresAuth: true, roles: ['ADMINISTRATOR'] }
+      },
+      {
+        path: 'users',
+        component: Users,
+        name: 'Users',
         meta: { requiresAuth: true, roles: ['ADMINISTRATOR'] }
       },
     ]
@@ -85,6 +95,17 @@ const routes = [
         }
       }
     ]
+  },
+  {
+    path: '/users',
+    component: Users,
+    beforeEnter: (to, from, next) => {
+      if (isAdmin()) {
+        next();
+      } else {
+        next({ name: 'Home' });
+      }
+    }
   }
 ];
 
@@ -98,7 +119,7 @@ router.beforeEach((to, from, next) => {
   const userRole = getUserRole();
   const allowedRoles = to.meta.roles;
 
-  console.log('UserRole:', userRole, 'AllowedRoles:', allowedRoles)
+  //console.log('UserRole:', userRole, 'AllowedRoles:', allowedRoles)
 
   if (requiresAuth && !userRole) {
     next({ name: 'UserLogin' });

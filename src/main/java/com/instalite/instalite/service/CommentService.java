@@ -44,14 +44,7 @@ public class CommentService {
         }
         var comments = commentRepository.findAllByImage(image, Pageable.ofSize(size).withPage(page));
 
-        var paginatedResults = PaginatedResultsDto.from(comments.map(comment -> CommentDto.builder()
-            .id(comment.getId())
-            .imageId(comment.getImage().getId())
-            .userId(comment.getUser().getId())
-            .text(comment.getText())
-            .timestamp(comment.getTimestamp())
-            .build()
-        ));
+        var paginatedResults = PaginatedResultsDto.from(comments.map(CommentDto::from));
         paginatedResults.setPage(comments.getNumber());
         paginatedResults.setItemsPerPage(comments.getNumberOfElements());
         paginatedResults.setItemCount(comments.getTotalElements());

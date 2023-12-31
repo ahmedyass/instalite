@@ -39,6 +39,7 @@ export default {
       { title: 'Public Images', icon: 'mdi-account-group-outline', to: '/public-images' },
       { title: 'Private Images', icon: 'mdi-account', to: '/private-images', roles: ['PRIVILEGED_USER', 'ADMINISTRATOR'] },
       { title: 'Upload Image', icon: 'mdi-upload', to: '/upload-image', roles: ['ADMINISTRATOR'] },
+      { title: 'Users', icon: 'mdi-shield-account-outline', to: '/users', roles: ['ADMINISTRATOR'] },
     ]
   }),
   mounted() {
