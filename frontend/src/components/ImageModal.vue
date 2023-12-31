@@ -25,7 +25,7 @@
               {{ comment.text }}
               <v-spacer></v-spacer>
               <!-- Comment Action Menu -->
-              <v-menu offset-y>
+              <v-menu offset-y v-if="canEditOrDelete(comment)">
                 <template v-slot:activator="{ on, props }">
                   <v-btn icon v-bind="props" v-on="on" variant="flat">
                     <v-icon>mdi-dots-horizontal</v-icon>
@@ -182,7 +182,7 @@ export default {
     });
 
     const canEditOrDelete = (comment) => {
-      return userRole.value === 'ADMINISTRATOR' || userId.value === comment.userId;
+      return userRole.value === 'ADMINISTRATOR' || userId.value === comment.username;
     };
 
     const addComment = () => {

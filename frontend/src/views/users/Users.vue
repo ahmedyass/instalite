@@ -6,7 +6,7 @@
       :items-per-page="pagination.itemsPerPage"
       :page.sync="pagination.page"
       :server-items-length="pagination.itemCount"
-      item-name="id"
+      item-key="name"
       @update:page="fetchUsers"
       class="elevation-1"
     >
@@ -19,9 +19,15 @@
           </template>
           <v-list>
             <v-list-item @click="openEditModal(item)">
+              <template v-slot:prepend>
+                <v-icon>mdi-pencil-outline</v-icon>
+              </template>
               <v-list-item-title>Edit</v-list-item-title>
             </v-list-item>
             <v-list-item @click="confirmDelete(item)">
+              <template v-slot:prepend>
+                <v-icon>mdi-delete-outline</v-icon>
+              </template>
               <v-list-item-title>Delete</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -76,10 +82,10 @@ export default {
       pageCount: 0
     });
     const headers = ref([
-      { text: 'Username', value: 'username' },
-      { text: 'Email', value: 'email' },
-      { text: 'Role', value: 'role' },
-      { text: 'Actions', value: 'action', sortable: false }
+      { title: 'Username', key: 'username' },
+      { title: 'Email', key: 'email' },
+      { title: 'Role', key: 'role' },
+      { title: 'Actions', key: 'action', sortable: false }
     ]);
     const selectedUser = ref(null);
     const editUserModal = ref(null);
