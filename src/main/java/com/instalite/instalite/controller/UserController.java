@@ -41,10 +41,12 @@ public class UserController {
         return ResponseEntity.ok(searchResultsDto);
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    public ResponseEntity<GetUserDto> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getById(id));
+    @GetMapping("/{username}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<GetUserDto> getProfile(@PathVariable String username,
+                                                 Principal principal) {
+
+        return ResponseEntity.ok(userService.getByUsername(username, principal.getName()));
     }
 
     @DeleteMapping("/{id}")

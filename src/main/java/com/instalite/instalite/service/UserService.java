@@ -31,7 +31,8 @@ public class UserService {
     // Authentication
 
     public void register(RegisterDto request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()
+            || userRepository.findByUsername(request.getUsername()).isPresent()) {
             return;
         }
         var user = User.builder()
@@ -99,9 +100,17 @@ public class UserService {
         return paginatedResults;
     }
 
-    public GetUserDto getById(UUID id) {
-        var user = userRepository.findById(id)
+    public GetUserDto getByUsername(String username, String issuerUsername) {
+        var user = userRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
+        var issuer = userRepository.findByUsername(issuerUsername)
+            .orElseThrow(UserNotFoundException::new);
+        // Only admin can get other users
+        if (!user.getId().equals(issuer.getId()) && !issuer.getRole().equals(UserRole.ADMINISTRATOR)) {
+            // For safety reasons, we don't want to let user know if the user exists or not
+            return null;
+        }
+
         return GetUserDto.builder()
             .id(user.getId())
             .username(user.getUsername())
