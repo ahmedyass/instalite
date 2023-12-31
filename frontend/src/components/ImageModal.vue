@@ -202,7 +202,7 @@ export default {
     };
 
     const editComment = () => {
-      axios.put(`http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments/${editedComment.value.id}`, { text: editedComment.value.text }, {
+      axios.put(`http://localhost:8080/api/v1/${props.imageType}/images/${props.image.id}/comments/${editedComment.value.id}`, editedComment.value.text, {
         headers: {
           ...authHeaders.headers,
           'Content-Type': 'text/plain'
