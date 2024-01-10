@@ -34,18 +34,19 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    // Default value for page is 0, and for size is 10
-    public ResponseEntity<PaginatedResultsDto<GetUserDto>> getPaginatedLivreurs(@RequestParam(defaultValue = "0") int page,
-                                                                                @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<PaginatedResultsDto<GetUserDto>> getPaginatedUsers(@RequestParam(defaultValue = "0") int page,
+                                                                             @RequestParam(defaultValue = "10") int size) {
 
         PaginatedResultsDto<GetUserDto> searchResultsDto = userService.paginatedUsers(page, size);
         return ResponseEntity.ok(searchResultsDto);
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    public ResponseEntity<GetUserDto> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getById(id));
+    @GetMapping("/{username}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<GetUserDto> getProfile(@PathVariable String username,
+                                                 Principal principal) {
+
+        return ResponseEntity.ok(userService.getByUsername(username, principal.getName()));
     }
 
     @DeleteMapping("/{id}")

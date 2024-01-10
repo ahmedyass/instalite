@@ -1,23 +1,22 @@
-# Use an official Node runtime as a parent image
-FROM node:lts
+FROM node:lts-alpine
 
-# Set the working directory to /app
+# installe un simple serveur http pour servir un contenu statique
+RUN npm install -g http-server
+
+# définit le dossier 'app' comme dossier de travail
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
+# copie 'package.json' et 'package-lock.json' (si disponible)
 COPY package*.json ./
 
-# Install dependencies
+# installe les dépendances du projet
 RUN npm install
 
-# Copy the rest of the application code to the working directory
+# copie les fichiers et dossiers du projet dans le dossier de travail (par exemple : le dossier 'app')
 COPY . .
 
-# Build the Vue.js application
+# construit l'app pour la production en la minifiant
 RUN npm run build
 
-# Expose the port the app runs on
-EXPOSE 4200
-
-# Run the application when the container starts
-CMD ["npm", "run", "start"]
+EXPOSE 8080
+CMD [ "http-server", "dist" ]

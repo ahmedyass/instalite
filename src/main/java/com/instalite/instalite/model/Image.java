@@ -1,33 +1,37 @@
 package com.instalite.instalite.model;
 
-import lombok.*;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+import java.io.Serializable;
+import java.util.Date;
+import java.util.UUID;
+
 @Entity
+@Data
 @Table(name = "images")
-public class Image {
+public class Image implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
+
+    @Column(nullable = false, unique = true)
+    private String filename;
+
+    @Column(length = 100)
+    private String title;
+
+    @Column(length = 500)
+    private String description;
+
+    @Column(name = "is_public")
+    private Boolean isPublic;
+
+    @Column(name = "date")
+    private Date creationDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @Column(nullable = false)
-    private String title;
-
-    private String description;
-
-    @Column(nullable = false)
-    private boolean isPublic;
-
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
 }

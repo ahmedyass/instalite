@@ -1,26 +1,38 @@
-# Use an official Maven image with JDK 17 as a parent image
+# Stage 1: Build the application
 FROM maven:3.8.4-openjdk-17-slim AS builder
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the entire project to the container
-COPY . .
+# First, copy the pom.xml file. This allows Docker to cache the Maven dependencies
+COPY pom.xml .
 
-# Build the application using the Maven Wrapper
-RUN mvn clean package
+# Copy the project source
+COPY src src
 
-# Create a new image for running the application
+# Build the application using Maven
+RUN mvn clean package -DskipTests
+
+# Stage 2: Create the runtime image
 FROM openjdk:17-jdk-slim
 
-# Set the working directory in the container
+# Create a user and group with non-root privileges
+RUN groupadd -r spring && useradd -r -g spring spring
+
+# Set the working directory
 WORKDIR /app
 
-# Copy the JAR file built in the previous stage
-COPY --from=builder /app/target/instalite-0.0.1-SNAPSHOT.jar .
+# Copy the JAR from the builder stage
+COPY --from=builder /app/target/*.jar app.jar
 
-# Expose the port that your Spring Boot app will run on
+# Specify the user to run the application
+USER spring:spring
+
+# Expose the application's port
 EXPOSE 8080
 
-# Specify the command to run your application
-CMD ["java", "-jar", "instalite-0.0.1-SNAPSHOT.jar"]
+# Health check (customize the endpoint accordingly)
+HEALTHCHECK --interval=30s --timeout=30s --retries=5 CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Run the application
+CMD ["java", "-jar", "app.jar"]

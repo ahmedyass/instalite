@@ -6,14 +6,6 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'AuthLayout'
 };
 </script>
-
-
-<style>
-.sidebar{
-  background-color: #EFEFEF;
-  border-right: 1px solid #C4C4C4;
-}
-</style>
